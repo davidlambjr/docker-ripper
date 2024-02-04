@@ -39,7 +39,8 @@ RUN add-apt-repository -y ppa:heyarje/makemkv-beta && \
       speex \
       vorbis-tools \
       vorbisgain \
-      wget && \
+      wget \
+      ffmpeg && \
     apt-get autoremove -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

@@ -20,7 +20,7 @@ printf "%s : Starting Ripper. Optical Discs will be detected and ripped within 6
 : "${SEPARATERAWFINISH:=false}"
 : "${ALSOMAKEISO:=false}"
 : "${TIMESTAMPPREFIX:=false}"
-: "${MINIMUMLENGTH:=600}"
+: "${TRANSCODEENABLED:=true}"
 # Print the values of configuration options if DEBUG is enabled
 if [[ "$DEBUG" == true ]]; then
    printf "SEPARATERAWFINISH: %s\n" "$SEPARATERAWFINISH"
@@ -36,7 +36,7 @@ if [[ "$DEBUG" == true ]]; then
    printf "BAD_THRESHOLD: %s\n" "$BAD_THRESHOLD"
    printf "DEBUG: %s\n" "$DEBUG"
    printf "DEBUGTOWEB: %s\n" "$DEBUGTOWEB"
-   printf "MINIMUMLENGTH: %s\n" "$MINIMUMLENGTH"
+   printf "TRANSCODEENABLED: %s\n" "$TRANSCODEENABLED"
 fi
 
 JUST_MADE_ISO=false
@@ -125,17 +125,12 @@ handle_bd_disc() {
    debug_log "Disc label: $disc_label, Disc number: $disc_number, BD path: $bd_path"
    mkdir -p "$bd_path"
 
-   local alt_rip="${RIPPER_DIR}/BLURAYrip.sh"
-   if [[ -f $alt_rip && -x $alt_rip ]]; then
-      printf "%s : BluRay detected: Executing %s\n" "$(date "+%d.%m.%Y %T")" "$alt_rip"
-      debug_log "Executing alternative BluRay rip script."
-      $alt_rip "$disc_number" "$bd_path" "$LOGFILE"
-   else
-      printf "%s : BluRay detected: Saving MKV\n" "$(date "+%d.%m.%Y %T")"
-      debug_log "Saving BluRay as MKV."
-      makemkvcon --profile=/config/default.mmcp.xml -r --decrypt --minlength="$MINIMUMLENGTH" mkv disc:"$disc_number" all "$bd_path" >>"$LOGFILE" 2>&1
-   fi
+   /config/blueray_ripper.sh "$disc_number" "$bd_path" >>"$LOGFILE" 2>&1
 
+   if [[ "$TRANSCODEENABLED" == "true" ]]; then
+      nohup /config/blueray_transcoder.sh "$bd_path" >>"$LOGFILE" 2>&1 &
+   fi
+   
    move_to_finished "$bd_path" "$STORAGE_BD"
 }
 
@@ -149,15 +144,10 @@ handle_dvd_disc() {
    debug_log "Disc label: $disc_label, Disc number: $disc_number, DVD path: $dvd_path"
    mkdir -p "$dvd_path"
 
-   local alt_rip="${RIPPER_DIR}/DVDrip.sh"
-   if [[ -f $alt_rip && -x $alt_rip ]]; then
-      printf "%s : DVD detected: Executing %s\n" "$(date "+%d.%m.%Y %T")" "$alt_rip"
-      debug_log "Executing alternative DVD rip script."
-      $alt_rip "$disc_number" "$dvd_path" "$LOGFILE"
-   else
-      printf "%s : DVD detected: Saving MKV\n" "$(date "+%d.%m.%Y %T")"
-      debug_log "Saving DVD as MKV."
-      makemkvcon --profile=/config/default.mmcp.xml -r --decrypt --minlength="$MINIMUMLENGTH" mkv disc:"$disc_number" all "$dvd_path" >>"$LOGFILE" 2>&1
+   /config/dvd_ripper.sh "$disc_number" "$dvd_path" >>"$LOGFILE" 2>&1
+
+   if [[ "$TRANSCODEENABLED" == "true" ]]; then
+      nohup /config/dvd_transcoder.sh "$dvd_path" >>"$LOGFILE" 2>&1 &
    fi
 
    move_to_finished "$dvd_path" "$STORAGE_DVD"
@@ -166,20 +156,20 @@ handle_dvd_disc() {
 handle_cd_disc() {
    local disc_info="$1"
    debug_log "Handling CD disc."
-   local alt_rip="${RIPPER_DIR}/CDrip.sh"
+   local alt_rip="${STORAGE_CD}/CDrip.sh"
    if [[ -f $alt_rip && -x $alt_rip ]]; then
       printf "%s : CD detected: Executing %s\n" "$(date "+%d.%m.%Y %T")" "$alt_rip"
       debug_log "Executing alternative CD rip script."
-      $alt_rip "$DRIVE" "$STORAGE_CD" "$LOGFILE"
+      /bin/bash $alt_rip "$DRIVE" "$STORAGE_CD" "$LOGFILE"
    else
       printf "%s : CD detected: Saving MP3 and FLAC\n" "$(date "+%d.%m.%Y %T")"
       debug_log "Saving CD as MP3 and FLAC."
-      /usr/bin/abcde -d "$DRIVE" -c /ripper/abcde.conf -N -x -l >>"$LOGFILE" 2>&1
+      /usr/bin/abcde -d "$DRIVE" -c /config/abcde.conf -N -x -l >>"$LOGFILE" 2>&1
    fi
    printf "%s : Completed CD rip.\n" "$(date "+%d.%m.%Y %T")"
    debug_log "Completed CD rip."
-   chown -R nobody:users "$STORAGE_CD" && chmod -R g+rw "$STORAGE_CD"
-   debug_log "Changed owner and permissions for: $STORAGE_CD"
+   #chown -R nobody:users "$STORAGE_CD" && chmod -R g+rw "$STORAGE_CD"
+   #debug_log "Changed owner and permissions for: $STORAGE_CD"
 }
 
 handle_data_disc() {
@@ -192,11 +182,11 @@ handle_data_disc() {
    local iso_path="${data_directory}/${iso_filename}"
    debug_log "Disc label: $disc_label, ISO path: $iso_path"
    mkdir -p "$data_directory"
-   local alt_rip="${RIPPER_DIR}/DATArip.sh"
+   local alt_rip="${STORAGE_DATA}/DATArip.sh"
    if [[ -f $alt_rip && -x $alt_rip ]]; then
       printf "%s : Data-disc detected: Executing %s\n" "$(date "+%d.%m.%Y %T")" "$alt_rip"
       debug_log "Executing alternative DATA disc rip script."
-      $alt_rip "$DRIVE" "$iso_path" "$LOGFILE"
+      /bin/bash $alt_rip "$DRIVE" "$iso_path" "$LOGFILE"
    else
       printf "%s : Data-disc detected: Saving ISO\n" "$(date "+%d.%m.%Y %T")"
       debug_log "Saving data-disc as ISO."
@@ -204,8 +194,8 @@ handle_data_disc() {
    fi
    printf "%s : Done saving ISO.\n" "$(date "+%d.%m.%Y %T")"
    debug_log "Done saving ISO."
-   chown -R nobody:users "$STORAGE_DATA" && chmod -R g+rw "$STORAGE_DATA"
-   debug_log "Changed owner and permissions for: $STORAGE_DATA"
+   #chown -R nobody:users "$STORAGE_DATA" && chmod -R g+rw "$STORAGE_DATA"
+   #debug_log "Changed owner and permissions for: $STORAGE_DATA"
    JUST_MADE_ISO=true
 }
 
@@ -304,7 +294,6 @@ launcher_function() {
                printf "%s : JustMakeISO is enabled. Saving ISO.\n" "$(date "+%d.%m.%Y %T")"
                debug_log "JustMakeISO is enabled. Saving ISO."
                handle_data_disc "$INFO"
-               ejectdisc
                ;;
             *)
                process_disc_type
@@ -317,11 +306,11 @@ launcher_function() {
                   if [ "$JUST_MADE_ISO" = false ]; then
                      handle_data_disc "$INFO"
                   fi
-                  ejectdisc
                   ;;
                esac
                ;;
             esac
+            ejectdisc
          else
             printf "%s : Too many bad responses, checking stopped.\n" "$(date "+%d.%m.%Y %T")"
             debug_log "Too many bad responses, checking stopped."
