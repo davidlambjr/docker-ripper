@@ -1,7 +1,7 @@
 #!/bin/bash
 
 RIPPER_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-LOGFILE="/config/Ripper.log"
+LOGFILE="/out/Ripper/config/Ripper.log"
 
 # Startup Info
 printf "%s : Starting Ripper. Optical Discs will be detected and ripped within 60 seconds.\n" "$(date "+%d.%m.%Y %T")"
@@ -125,10 +125,10 @@ handle_bd_disc() {
    debug_log "Disc label: $disc_label, Disc number: $disc_number, BD path: $bd_path"
    mkdir -p "$bd_path"
 
-   /config/blueray_ripper.sh "$disc_number" "$bd_path" >>"$LOGFILE" 2>&1
+   /out/Ripper/config/blueray_ripper.sh "$disc_number" "$bd_path" >>"$LOGFILE" 2>&1
 
    if [[ "$TRANSCODEENABLED" == "true" ]]; then
-      nohup /config/blueray_transcoder.sh "$bd_path" >>"$LOGFILE" 2>&1 &
+      nohup /out/Ripper/config/blueray_transcoder.sh "$bd_path" >>"$LOGFILE" 2>&1 &
    fi
    
    move_to_finished "$bd_path" "$STORAGE_BD"
@@ -144,10 +144,10 @@ handle_dvd_disc() {
    debug_log "Disc label: $disc_label, Disc number: $disc_number, DVD path: $dvd_path"
    mkdir -p "$dvd_path"
 
-   /config/dvd_ripper.sh "$disc_number" "$dvd_path" >>"$LOGFILE" 2>&1
+   /out/Ripper/config/dvd_ripper.sh "$disc_number" "$dvd_path" >>"$LOGFILE" 2>&1
 
    if [[ "$TRANSCODEENABLED" == "true" ]]; then
-      nohup /config/dvd_transcoder.sh "$dvd_path" >>"$LOGFILE" 2>&1 &
+      nohup /out/Ripper/config/dvd_transcoder.sh "$dvd_path" >>"$LOGFILE" 2>&1 &
    fi
 
    move_to_finished "$dvd_path" "$STORAGE_DVD"
@@ -164,7 +164,7 @@ handle_cd_disc() {
    else
       printf "%s : CD detected: Saving MP3 and FLAC\n" "$(date "+%d.%m.%Y %T")"
       debug_log "Saving CD as MP3 and FLAC."
-      /usr/bin/abcde -d "$DRIVE" -c /config/abcde.conf -N -x -l >>"$LOGFILE" 2>&1
+      /usr/bin/abcde -d "$DRIVE" -c /out/Ripper/config/abcde.conf -N -x -l >>"$LOGFILE" 2>&1
    fi
    printf "%s : Completed CD rip.\n" "$(date "+%d.%m.%Y %T")"
    debug_log "Completed CD rip."

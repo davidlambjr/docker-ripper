@@ -2,43 +2,43 @@
 
 echo "Using this daily? Please sponsor me at https://github.com/sponsors/rix1337 - any amount counts!"
 
-mkdir -p /config
+mkdir -p /out/Ripper/config
 
 # copy default script
-if [[ ! -f /config/ripper.sh ]]; then
-    cp /ripper/ripper.sh /config/ripper.sh
+if [[ ! -f /out/Ripper/config/ripper.sh ]]; then
+    cp /ripper/ripper.sh /out/Ripper/config/ripper.sh
 fi
 
 # copy blueray_ripper script
-if [[ ! -f /config/blueray_ripper.sh ]]; then
-    cp /ripper/blueray_ripper.sh /config/blueray_ripper.sh
+if [[ ! -f /out/Ripper/config/blueray_ripper.sh ]]; then
+    cp /ripper/blueray_ripper.sh /out/Ripper/config/blueray_ripper.sh
 fi
 # copy blueray_transcoder script
-if [[ ! -f /config/blueray_transcoder.sh ]]; then
-    cp /ripper/blueray_transcoder.sh /config/blueray_transcoder.sh
+if [[ ! -f /out/Ripper/config/blueray_transcoder.sh ]]; then
+    cp /ripper/blueray_transcoder.sh /out/Ripper/config/blueray_transcoder.sh
 fi
 
 # copy dvd_ripper script
-if [[ ! -f /config/dvd_ripper.sh ]]; then
-    cp /ripper/dvd_ripper.sh /config/dvd_ripper.sh
+if [[ ! -f /out/Ripper/config/dvd_ripper.sh ]]; then
+    cp /ripper/dvd_ripper.sh /out/Ripper/config/dvd_ripper.sh
 fi
 
 # copy dvd_transcoder script
-if [[ ! -f /config/dvd_transcoder.sh ]]; then
-    cp /ripper/dvd_transcoder.sh /config/dvd_transcoder.sh
+if [[ ! -f /out/Ripper/config/dvd_transcoder.sh ]]; then
+    cp /ripper/dvd_transcoder.sh /out/Ripper/config/dvd_transcoder.sh
 fi
 
 # copy default settings
-if [[ ! -f /config/settings.conf ]] && [[ ! -f /config/enter-your-key-then-rename-to.settings.conf ]]; then
-    cp -f /ripper/settings.conf /config/
-    mv /config/settings.conf /config/enter-your-key-then-rename-to.settings.conf
+if [[ ! -f /out/Ripper/config/settings.conf ]] && [[ ! -f /out/Ripper/config/enter-your-key-then-rename-to.settings.conf ]]; then
+    cp -f /ripper/settings.conf /out/Ripper/config/
+    mv /out/Ripper/config/settings.conf /out/Ripper/config/enter-your-key-then-rename-to.settings.conf
 fi
 
 # move settings.conf, if found
 mkdir -p /root/.MakeMKV
-if [[ -f /config/settings.conf ]]; then
+if [[ -f /out/Ripper/config/settings.conf ]]; then
     echo "Found settings.conf. Replacing beta key file."
-    cp -f /config/settings.conf /root/.MakeMKV/
+    cp -f /out/Ripper/config/settings.conf /root/.MakeMKV/
 elif [ -n $KEY ]; then
     # fetching MakeMKV beta key
     KEY=$(curl --silent 'https://forum.makemkv.com/forum/viewtopic.php?f=5&t=1053' | grep -oP 'T-[\w\d@]{66}')
@@ -49,24 +49,24 @@ fi
 makemkvcon reg
 
 # move abcde.conf, if found
-if [[ -f /config/abcde.conf ]]; then
+if [[ -f /out/Ripper/config/abcde.conf ]]; then
     echo "Found abcde.conf."
-    cp -f /ripper/abcde.conf /config/abcde.conf
+    cp -f /ripper/abcde.conf /out/Ripper/config/abcde.conf
 fi
 
 # copy default default.mmcp.xml
-if [[ ! -f /config/default.mmcp.xml ]]; then
-    cp -f /ripper/default.mmcp.xml /config/default.mmcp.xml
+if [[ ! -f /out/Ripper/config/default.mmcp.xml ]]; then
+    cp -f /ripper/default.mmcp.xml /out/Ripper/config/default.mmcp.xml
 fi
 
 # permissions
-chown -R nobody:users /config
-chmod -R g+rw /config
+chown -R nobody:users /out/Ripper/config
+chmod -R g+rw /out/Ripper/config
 
-chmod +x /config/ripper.sh
-chmod +x /config/blueray_ripper.sh
-chmod +x /config/blueray_transcoder.sh
-chmod +x /config/dvd_ripper.sh
-chmod +x /config/dvd_transcoder.sh
+chmod +x /out/Ripper/config/ripper.sh
+chmod +x /out/Ripper/config/blueray_ripper.sh
+chmod +x /out/Ripper/config/blueray_transcoder.sh
+chmod +x /out/Ripper/config/dvd_ripper.sh
+chmod +x /out/Ripper/config/dvd_transcoder.sh
 
 /config/ripper.sh &
