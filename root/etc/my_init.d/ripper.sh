@@ -43,9 +43,8 @@ fi
 
 makemkvcon reg
 
-# move abcde.conf, if found
-if [[ -f /out/Ripper/config/abcde.conf ]]; then
-    echo "Found abcde.conf."
+# copy default abcde.conf
+if [[ ! -f /out/Ripper/config/abcde.conf ]]; then
     cp -f /ripper/abcde.conf /out/Ripper/config/abcde.conf
 fi
 
