@@ -4,11 +4,6 @@ echo "Using this daily? Please sponsor me at https://github.com/sponsors/rix1337
 
 mkdir -p /out/Ripper/config
 
-# copy default script
-if [[ ! -f /out/Ripper/config/ripper.sh ]]; then
-    cp /ripper/ripper.sh /out/Ripper/config/ripper.sh
-fi
-
 # copy blueray_ripper script
 if [[ ! -f /out/Ripper/config/blueray_ripper.sh ]]; then
     cp /ripper/blueray_ripper.sh /out/Ripper/config/blueray_ripper.sh
@@ -63,10 +58,10 @@ fi
 chown -R nobody:users /out/Ripper/config
 chmod -R g+rw /out/Ripper/config
 
-chmod +x /out/Ripper/config/ripper.sh
+chmod +x /ripper/ripper.sh
 chmod +x /out/Ripper/config/blueray_ripper.sh
 chmod +x /out/Ripper/config/blueray_transcoder.sh
 chmod +x /out/Ripper/config/dvd_ripper.sh
 chmod +x /out/Ripper/config/dvd_transcoder.sh
 
-/config/ripper.sh &
+/ripper/ripper.sh &
