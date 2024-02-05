@@ -93,7 +93,7 @@ def app_container():
     if arguments['--log']:
         log_file = arguments['--log']
     else:
-        log_file = "/out/Ripper/config/Ripper.log"
+        log_file = "/tmp/Ripper.log"
 
     def check_auth(username, password):
         return username == arguments['--user'] and password == arguments['--pass']
