@@ -125,9 +125,13 @@ handle_bd_disc() {
    debug_log "Disc label: $disc_label, Disc number: $disc_number, BD path: $bd_path"
    mkdir -p "$bd_path"
 
+   printf "%s : BluRay detected: Ripping\n" "$(date "+%d.%m.%Y %T")"
+   debug_log "Ripping BluRay."
    /out/Ripper/config/blueray_ripper.sh "$disc_number" "$bd_path" >>"$LOGFILE" 2>&1
 
    if [[ "$TRANSCODEENABLED" == "true" ]]; then
+      printf "%s : Transcoding BluRay\n" "$(date "+%d.%m.%Y %T")" 
+      debug_log "Transcoding BluRay."
       nohup /out/Ripper/config/blueray_transcoder.sh "$bd_path" >>"$LOGFILE" 2>&1 &
    fi
    
@@ -144,9 +148,13 @@ handle_dvd_disc() {
    debug_log "Disc label: $disc_label, Disc number: $disc_number, DVD path: $dvd_path"
    mkdir -p "$dvd_path"
 
+   printf "%s : DVD detected: Ripping\n" "$(date "+%d.%m.%Y %T")"
+   debug_log "Ripping DVD."
    /out/Ripper/config/dvd_ripper.sh "$disc_number" "$dvd_path" >>"$LOGFILE" 2>&1
 
    if [[ "$TRANSCODEENABLED" == "true" ]]; then
+      printf "%s : Transcoding DVD\n" "$(date "+%d.%m.%Y %T")" 
+      debug_log "Transcoding DVD."
       nohup /out/Ripper/config/dvd_transcoder.sh "$dvd_path" >>"$LOGFILE" 2>&1 &
    fi
 
