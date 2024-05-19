@@ -41,7 +41,7 @@ elif [ -n $KEY ]; then
     echo app_Key = "\"$KEY"\" >/root/.MakeMKV/settings.conf
 fi
 
-#makemkvcon reg
+setuser root makemkvcon reg ""
 
 # copy default abcde.conf
 if [[ ! -f /out/Ripper/config/abcde.conf ]]; then
@@ -63,4 +63,4 @@ chmod +x /out/Ripper/config/blueray_transcoder.sh
 chmod +x /out/Ripper/config/dvd_ripper.sh
 chmod +x /out/Ripper/config/dvd_transcoder.sh
 
-/ripper/ripper.sh &
+setuser root /ripper/ripper.sh &
